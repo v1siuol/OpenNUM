@@ -3,42 +3,73 @@ import math
 
 class Source(object):
 
-    def __init__(self, index, rate=0.0, hit_rate=0.5, path=None):
-        if path is None:
-            path = set()
+    def __init__(self, index, rates=None, hit_rate=0.5, weight=1, paths=None):
+        if paths is None:
+            paths = []
+        if rates is None:
+            rates = []
         self.index = index
-        self.rate = rate
+        self.rates = rates
         self.hit_rate = hit_rate
-        self.path = path
+        self.weight = weight
+        self.paths = paths
 
-    def get_weight(self):
-        return self.hit_rate
+    def get_rates(self):
+        return self.rates
 
-    def get_utility(self):
-        return self.get_weight() * math.log(self.rate + 1)
+    def get_utilities(self):
+        return [self.get_utility(j) for j in range(len(self.paths))]
 
-    # solve 17
-    def get_next_opt_rate(self):
+    def get_utility(self, path_index):
+        _log_term = 1
+        if (self.rates[path_index] != 0):
+            # _log_term = math.log(self.rates[path_index] / self.get_theta(path_index))
+            _log_term = math.log(self.rates[path_index] / self.get_theta(path_index) + 1)
+
+        # return self.get_theta(path_index) * self.weight * self.get_theta(path_index) * _log_term
+        return self.weight * self.get_theta(path_index) * _log_term
+
+    def get_theta(self, path_index):
+        total_rates = sum(self.rates)
+        if total_rates == 0:
+            return 1
+        return self.rates[path_index] / total_rates
+
+    def get_next_opt_rate(self, path_index):
         aggregate_price = 0
-        for link in self.path:
-            aggregate_price += link.price  # ？
-        return self.get_weight() / aggregate_price
+        for path in self.paths:
+            for link in path:
+                aggregate_price += link.price  # ？
 
-    # return self.get_weight() / aggregate_price - 1
+        return self.hit_rate * self.weight * self.get_theta(path_index) / aggregate_price
 
     def update_rate_next_tick(self):
-        new_rate = self.get_next_opt_rate()
+        new_rates = []
+        for j in range(len(self.paths)):
+            assert self.rates[j] >= 0, 'Source rate cannot be negative'
+            new_rates.append(self.get_next_opt_rate(j))
 
-        print('Source %d: %.4f\t->\t%.4f' % (self.index, self.rate, new_rate))
+        print('Source %d rates: %s\t->\t%s' % (self.index, str(self.rates), str(new_rates)))
+        self.rates = new_rates
 
-        self.rate = new_rate
-        return new_rate, self.get_utility()
+        return new_rates, self.get_utilities()
 
-    def bind_link(self, link):
-        self.path.add(link)
+    def bind_link(self, path_index, link):
+        if path_index >= len(self.paths):
+            # new 
+            self.paths.append([link])
+        else:
+            self.paths[path_index].append(link)
+
+    def init_paths_rate(self):
+        # self.rates = [0 for _ in range(len(self.paths))]
+        self.rates = [0.01 for _ in range(len(self.paths))]
+
+    def set_path_rate(self, path_index, rate):
+        self.rates[path_index] = rate
 
     def __repr__(self):
-        return '{}: \t rate: {}'.format(self.index, self.rate)
+        return '[{}]'.format(self.index)
 
     def __str__(self):
-        return '{}: \t rate: {}\n'.format(self.index, self.rate)
+        return '[{}]\n'.format(self.index)

@@ -1,7 +1,6 @@
 # suppor comment and blank lines 
 
-# PATH = 1
-1
+
 
 # LINK = 3 
 3
@@ -19,6 +18,8 @@ D
 D
 D
 
+# PATH = 1
+1
 
 # CONNECTION MATRIX 
 # top_row=link left_col=source

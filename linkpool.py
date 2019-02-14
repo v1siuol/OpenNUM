@@ -8,9 +8,7 @@ class LinkPool(object):
         self.counter = 0
         self.trace = {}
 
-    def add_link(self, curr_capacity=0.0, max_capacity=25.0, price=0.5, traffic=None):
-        if traffic is None:
-            traffic = set()
+    def add_link(self, curr_capacity=0.0, max_capacity=25.0, price=None, traffic=None):
         new_link = Link(self.counter, curr_capacity, max_capacity, price, traffic)
         self.link_pool.append(new_link)
         self.trace[new_link] = [[], []]  # price, curr_capacity
@@ -43,7 +41,7 @@ class LinkPool(object):
     def __repr__(self):
         ret_repr = ''
         for i in range(self.counter):
-            ret_repr += '{}: \t max_capacity: {} \t price: {} \t traffic: {}\n'.format(self.link_pool[i].index,
+            ret_repr += '{}: \t max_capacity: {} \t price: {} \t\t traffic: {}\n'.format(self.link_pool[i].index,
                                                                                        self.link_pool[i].max_capacity,
                                                                                        self.link_pool[i].price,
                                                                                        self.link_pool[i].traffic)

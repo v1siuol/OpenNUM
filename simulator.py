@@ -19,10 +19,10 @@ class Simulator(object):
     def reader(self, input_folder_name='./', input_file_name='num_input_0.txt'):
         with open(input_folder_name + input_file_name, 'r') as file:
 
-            path_num_header = file.readline()
-            path_num_str = path_num_header.split()[0]
-            path_num = int(path_num_str)
-            assert path_num > 0, 'Require a postive path number'
+            # path_num_header = file.readline()
+            # path_num_str = path_num_header.split()[0]
+            # path_num = int(path_num_str)
+            # assert path_num > 0, 'Require a postive path number'
 
             link_num_header = file.readline()
             link_num_str = link_num_header.split()[0]
@@ -99,15 +99,21 @@ class Simulator(object):
                 else:
                     raise ValueError('Invalid link parameter')
 
+
+            path_num_header = file.readline()
+            path_num_str = path_num_header.split()[0]
+            path_num = int(path_num_str)
+            assert path_num > 0, 'Require a postive path number'
+
             # matrix
-            for _ in range(path_num):
+            for path_index in range(path_num):
                 for source_index in range(source_num):
                     route_info_line = file.readline()
                     route_info = route_info_line.split()
                     assert len(route_info) == link_num, ValueError('Invalid path parameter')
                     for link_index in range(link_num):
                         if route_info[link_index] == '1':
-                            self.source_pool.bind_source_link(source_index, self.link_pool.get_link(link_index))
+                            self.source_pool.bind_source_link(path_index, source_index, self.link_pool.get_link(link_index))
                             self.link_pool.bind_link_source(link_index, self.source_pool.get_source(source_index))
                         elif route_info[link_index] == '0':
                             # do nothing 
@@ -115,10 +121,12 @@ class Simulator(object):
                         else:
                             raise ValueError('Invalid path parameter')
 
-            # print(self.link_pool)
-            # print(self.source_pool)
+            self.source_pool.init_paths_rate()
 
-            # care overflow left ignored 
+            print(self.link_pool)
+            print(self.source_pool)
+
+            # care file overflow left ignored 
 
     def run_next_time_tick(self):
         self.source_pool.update_rate_next_tick()
@@ -161,7 +169,7 @@ class Simulator(object):
             plt.plot(iteration, rate, auto_color.make(), label='S' + str(index))
         plt.legend()
 
-        # auto_color.reset()
+        auto_color.reset()
         # # plot curr_capacity for each link
         plt.figure(3)
         plt.title('Relation Between Iteration and Link Capacity')
@@ -188,10 +196,13 @@ class Simulator(object):
 
 
 # main 
-simulator = Simulator()
+# simulator = Simulator()
+simulator = Simulator(end_time=7500, alpha=5e-6)
 
-simulator.reader(input_file_name='num_input_0.txt')
+# simulator.reader(input_file_name='num_input_0.txt')
 # simulator.reader(input_file_name='num_input_1.txt')
+simulator.reader(input_file_name='num_input_2.txt')
+# simulator.reader(input_file_name='num_input_3.txt')
 
 simulator.save_initial_data()
 simulator.auto_sim()

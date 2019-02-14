@@ -6,3 +6,6 @@
 ## 0.1.0 (2019-02-07)
 - [A] Support input reader
 
+## 0.2.0 (2019-02-14)
+- [A] Support Multi-Path
+
