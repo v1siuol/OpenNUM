@@ -29,11 +29,29 @@ class Link(object):
         # return '{}: price: {}\n'.format(self.index, self.price)
         return '[{}]\n'.format(self.index)
 
+    # hard coding 
     def get_next_tick_price(self, alpha):
         source_total_rate = 0
-        for source in self.traffic:
-            source_total_rate += sum(source.rates)
+
+        for source in set(self.traffic):
+            if self.index == 0:
+                source_total_rate += source.rates[0]
+            elif self.index == 1:
+                offload_rate, local_rate = source.rates
+                source_total_rate += offload_rate + local_rate * source.hit_rate
+            elif self.index in [2,3,4]:
+                source_total_rate += source.rates[1]
+            else:
+                raise ValueError('Invalid link index')
+
+            # if self.index == 1:
+            #     offload_rate, local_rate = source.rates
+            #     source_total_rate += offload_rate + local_rate * source.hit_rate
+            # else:
+            #     source_total_rate += sum(source.rates) 
+
         self.curr_capacity = source_total_rate
+        print('curr_capacity', self.index, set(self.traffic), source_total_rate, self.price)
         return abs(self.price - alpha * (self.max_capacity - source_total_rate))
 
     def update_price_next_tick(self, alpha):

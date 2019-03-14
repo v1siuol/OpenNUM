@@ -123,14 +123,17 @@ class Simulator(object):
 
             self.source_pool.init_paths_rate()
 
-            print(self.link_pool)
-            print(self.source_pool)
+            # print(self.link_pool)
+            # print(self.source_pool)
 
             # care file overflow left ignored 
 
     def run_next_time_tick(self):
         self.source_pool.update_rate_next_tick()
         self.link_pool.update_price_next_tick(self.alpha)
+
+        # change time on source??
+        self.source_pool.update_hit_rate()
 
         self.time += 1
 
@@ -191,13 +194,25 @@ class Simulator(object):
             plt.plot(iteration, price, auto_color.make(), label='L' + str(index))
         plt.legend()
 
+
+        auto_color.reset()
+        plt.figure(5)
+        plt.title('Relation Between Rates between Offload and Local Path for Source A')
+        plt.xlabel('Iterations')
+        plt.ylabel('Rate')
+        source_index = 0
+        offload_rate, local_rate = self.source_pool.get_source_rate(source_index)
+        plt.plot(iteration, offload_rate, auto_color.make(), label='S'+str(source_index)+' - Offload')
+        plt.plot(iteration, local_rate, auto_color.make(), label='S'+str(source_index)+' - Local')
+        plt.legend()
+
         plt.show()
 
 
 
 # main 
 # simulator = Simulator()
-simulator = Simulator(end_time=7500, alpha=5e-6)
+simulator = Simulator(end_time=5000, alpha=5e-6)
 
 # simulator.reader(input_file_name='num_input_0.txt')
 # simulator.reader(input_file_name='num_input_1.txt')
@@ -208,4 +223,4 @@ simulator.save_initial_data()
 simulator.auto_sim()
 
 
-print('Done')
+# print('Done')
